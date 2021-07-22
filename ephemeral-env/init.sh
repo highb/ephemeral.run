@@ -6,8 +6,8 @@ set -o errexit
 # Check for unused domain name for epehemeral environment
 source get_domain.sh # import function
 
-# Access yaml content
-export $(yq e '*.*' env.yaml | sed -e 's/\./_/' -e 's/: /=/' -e 's/"//g')
+# Access yaml content and export key-value as environment variable
+export $(yq eval '.. | select((tag == "!!map" or tag == "!!seq") | not) | (path | join("_")) + "=" + .' env.yaml)
 
 # Run Skaffold
 if [ "${1-default}" == "minikube" ]; then
